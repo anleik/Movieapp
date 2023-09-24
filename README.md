@@ -1,6 +1,6 @@
 # Movieapp
 
-##Functionality:  
+## Functionality:  
 Users can:  
 * create an account   
 * login/logout  
@@ -9,7 +9,7 @@ Users can:
 * like or dislike other users' reviews  
 
 
-##Instructions  
+## Instructions  
 Clone the repository and move to it's root directory  
 Create a .env file and fill in these variables:  
 ```
@@ -33,7 +33,7 @@ Launch the app with:
 $ flask run  
 ```
   
-##Goals  
+## Goals  
 Users can:
 * create an account
 * login/logout  
