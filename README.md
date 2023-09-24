@@ -15,23 +15,23 @@ Create a .env file and fill in these variables:
 ```
 DATABASE_URL=<database-local-path>
 SECRET_KEY=<secret-key>
-´´´
+```
   
 Activate virtual environment and install dependencies with the commands:  
 ```
 $ python3 -m venv venv  
 $ source venv/bin/activate  
 $ pip install -r ./requirements.txt  
-´´´
+```
 
 Use the database schema:  
 ```
 $ psql < schema.sql
-´´´
+```
 Launch the app with:  
 ```
 $ flask run  
-´´´
+```
   
 ##Goals  
 Users can:
