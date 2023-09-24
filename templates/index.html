@@ -1,3 +1,19 @@
-<title>Front Page</title>
-<h1>Front Page</h1>
-<b>WIP</b> 
+<title>Movieapp</title>
+<h1>Movieapp</h1>
+<h2>Movies</h2>
+<hr>
+{% for movie in movies %}
+<a href="{{ url_for('movie_detail', title=movie.name) }}">{{ movie.name }}</a>
+<br>
+{{movie}}
+<hr>
+{% endfor %}
+<br>
+{% if session.username %}
+<p>You're logged in as {{session.username}}</p>
+<a href="/logout">Log Out</a>
+
+{%else%}
+<p> You're not logged in </p>
+<a href="/login">Login Page</a>
+{% endif %}

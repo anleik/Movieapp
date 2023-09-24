@@ -1,0 +1,41 @@
+<h2> 
+    <a href="{{ url_for('index') }}">Front Page</a> 
+</h2>
+<h1>{{movie.name, movie.year}} </h1>
+
+<br>
+<a href="{{ url_for('movie_detail', title=movie.name) }}">Movie: {{ movie.name }}</a>
+<h2> Average score: {{ score }}/10</h2>
+<br><br>
+{% if session.username %}
+<a href="{{ url_for('review', title=movie.name) }}">Review</a>
+{% endif %}
+<br>
+<h2>Reviews:</h2>
+    <ul>
+        {% for review in movie_reviews %}
+            <li>
+                <strong>User: {{ users[loop.index-1] }}</strong> 
+                <br>
+                Score: {{ review[2] }}/10 
+                <br>
+                Reviewed at: {{ timestamps[loop.index-1] }}<br>
+                Review: {{ review[1] }}
+                <br>
+                {% if session.username %}
+                    <span>
+                    <form method="POST" action="{{ url_for('like_review', review_id=review.id) }}">
+                        <input type="hidden" name="action" value="like">
+                        <button type="submit">Like</button>
+                    </form></span>
+                    <span><form method="POST" action="{{ url_for('like_review', review_id=review.id) }}">
+                        <input type="hidden" name="action" value="dislike">
+                        <button type="submit">Dislike</button>
+                    </form></span>
+                    {% endif %}
+                    <span class="like.count">{{ likecounts[loop.index-1] }}</span> Likes
+
+            </li>
+        {% endfor %}
+    </ul>
+
