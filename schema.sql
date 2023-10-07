@@ -2,6 +2,7 @@ CREATE TABLE public.movies (
     id SERIAL PRIMARY KEY,
     name text NOT NULL,
     year integer NOT NULL
+    CONSTRAINT unique_name_year UNIQUE (name, year)
 );
 
 CREATE TABLE public.users (

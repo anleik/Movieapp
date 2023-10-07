@@ -1,6 +1,7 @@
 from app import app
 import users
 import reviews
+import movies
 from db import db
 from flask import Flask
 from flask import redirect, render_template, request, flash, url_for, session
@@ -76,7 +77,7 @@ def movie_detail(title):
                                )
     else:
         return render_template("error.html", message = "Something went wrong")
-    
+  
 @app.route('/movie/<string:title>/review', methods=['GET','POST'])
 def review(title):
     sql = text("SELECT * FROM movies WHERE name = :title")
@@ -185,3 +186,21 @@ def register():
             return redirect("/")
         else:
             return render_template("error.html", message="Registration failed")
+
+@app.route('/admin', methods=['GET', 'POST'])
+def admin_panel():
+    if not session["is_admin"]:
+        return render_template("error.html", message = "You do not have permission to this page")
+    return render_template('admin.html')
+
+@app.route('/add-movie', methods=['POST'])
+def add_movie():
+    if not session.get("is_admin"):
+        return render_template("error.html", message = "You do not have permission to this page")
+
+    movie_name = request.form['movie_name']
+    movie_year = request.form['year']
+
+    movies.add_movie(movie_name, movie_year)
+
+    return render_template("admin.html", message =f" Movie: {movie_name}, {movie_year} added successfully.")

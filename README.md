@@ -9,8 +9,8 @@ Users can:
 * like or dislike other users' reviews  
 
 Admins can:  
-* delete reviews  
-
+* add new movies
+* delete reviews
 
 
 ## Instructions  

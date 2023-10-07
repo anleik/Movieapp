@@ -13,7 +13,11 @@
 <p>You're logged in as {{session.username}}</p>
 
 {% if session.is_admin == True %}    
-<p>You are an admin user</p>    
+<p>You are an admin user</p>
+<br>
+<a href="{{ url_for('admin_panel') }}">Admin Panel</a>    
+<br> 
+<br>
 {% endif %}
 
 <a href="/logout">Log Out</a>
