@@ -2,11 +2,15 @@
 
 ## Functionality:  
 Users can:  
-* create an account   
+* create an account  
 * login/logout  
 * review movies (text and rating) 
 * browse other users' reviews  
 * like or dislike other users' reviews  
+
+Admins can:  
+* delete reviews  
+
 
 
 ## Instructions  
