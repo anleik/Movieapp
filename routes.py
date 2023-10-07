@@ -134,6 +134,8 @@ def register():
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
+        if len(username) < 3:
+            return render_template("error.html", message="Username must be 3 characters or longer")
         if password1 != password2:
             return render_template("error.html", message="Different passwords entered")
         if users.register(username, password1):

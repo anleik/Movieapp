@@ -4,13 +4,13 @@ CREATE TABLE public.movies (
     year integer NOT NULL
 );
 
-
 CREATE TABLE public.users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(30) NOT NULL,
     password VARCHAR(500) NOT NULL,
     admin boolean NOT NULL,
-    CONSTRAINT unique_username UNIQUE (username);
+    CONSTRAINT unique_username UNIQUE (username)
+    CONSTRAINT min_username_length CHECK (LENGTH(username) >= 3);
 );
 
 CREATE TABLE public.reviews (
@@ -23,13 +23,10 @@ CREATE TABLE public.reviews (
     CONSTRAINT reviews_score_check CHECK (((score >= 0) AND (score <= 10)))
 );
 
-
 CREATE TABLE public.likes (
     id SERIAL PRIMARY KEY,
     liketype VARCHAR(10),
     user_id integer REFERENCES users,
     review_id integer REFERENCES reviews,
-    CONSTRAINT unique_like_dislike UNIQUE (user_id, review_id);
+    CONSTRAINT unique_like_dislike UNIQUE (user_id, review_id)
 );
-
-
