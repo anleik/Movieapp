@@ -1,7 +1,7 @@
 from app import app
 import users
 import reviews
-import movies
+import movies as sqlmovies
 from db import db
 from flask import Flask
 from flask import redirect, render_template, request, flash, url_for, session
@@ -191,16 +191,46 @@ def register():
 def admin_panel():
     if not session["is_admin"]:
         return render_template("error.html", message = "You do not have permission to this page")
-    return render_template('admin.html')
+    movies = sqlmovies.get_movies()
+    genres = sqlmovies.get_genres()
+    return render_template('admin.html', movies = movies, genres = genres)
 
 @app.route('/add-movie', methods=['POST'])
 def add_movie():
-    if not session.get("is_admin"):
+    if not session["is_admin"]:
         return render_template("error.html", message = "You do not have permission to this page")
 
     movie_name = request.form['movie_name']
     movie_year = request.form['year']
+    
 
-    movies.add_movie(movie_name, movie_year)
+    sqlmovies.add_movie(movie_name, movie_year)
+    movies = sqlmovies.get_movies()
+    genres = sqlmovies.get_genres()
+    return render_template("admin.html", message =f" Movie: {movie_name}, {movie_year} added successfully.", movies = movies, genres = genres)
 
-    return render_template("admin.html", message =f" Movie: {movie_name}, {movie_year} added successfully.")
+@app.route('/add-genre', methods=['POST'])
+def add_genre():
+    if not session["is_admin"]:
+        return render_template("error.html", message = "You do not have permission to this page")
+
+    genre_name = request.form['genre_name']
+
+    sqlmovies.add_genre(genre_name)
+    movies = sqlmovies.get_movies()
+    genres = sqlmovies.get_genres()
+    return render_template("admin.html", message =f" Genre {genre_name} added successfully.", movies = movies, genres = genres)
+
+
+@app.route('/link-genre', methods=['POST'])
+def link_genre():
+    if not session["is_admin"]:
+        return render_template("error.html", message = "You do not have permission to this page")
+
+    movie = request.form['movie_id']
+    genre = request.form['genre_id']
+
+    sqlmovies.link_genre(movie, genre)
+    movies = sqlmovies.get_movies()
+    genres = sqlmovies.get_genres()
+    return render_template("admin.html", message =f" Genre linked to movie successfully.", movies = movies, genres = genres) 

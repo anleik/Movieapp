@@ -10,6 +10,8 @@ Users can:
 
 Admins can:  
 * add new movies
+* add new genres
+* link genres to movies
 * delete reviews
 
 

@@ -18,11 +18,34 @@
     <br>
     <button type="submit">Add Movie</button>
 </form>
+<br>
+<h3>Add a new genre</h3>
+<form method="POST" action="{{ url_for('add_genre') }}">
+    <label for="genre_name">Genre Name:</label>
+    <input type="text" id="genre_name" name="genre_name" required>
+    <br>
+    <button type="submit">Add Genre</button>
+</form>
+<br>
 
-
-
-
-
+<h3>Add a genre to a movie</h3>
+<form method="POST" action="{{ url_for('link_genre') }}">
+    <label for="movie_id">Movie:</label>
+    <select id="movie_id" name="movie_id" required>
+        {% for movie in movies %}
+            <option value="{{ movie.id }}">{{ movie.name }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <label for="genre_id">Genre:</label>
+    <select id="genre_id" name="genre_id" required>
+        {% for genre in genres %}
+            <option value="{{ genre.id }}">{{ genre.name }}</option>
+        {% endfor %}
+    </select>
+    <br>
+    <button type="submit">Add genre to movie</button>
+</form>
 
 
 {% endif %}
