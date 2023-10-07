@@ -30,3 +30,14 @@ CREATE TABLE public.likes (
     review_id integer REFERENCES reviews,
     CONSTRAINT unique_like_dislike UNIQUE (user_id, review_id)
 );
+
+CREATE TABLE public.genres (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(30) NOT NULL
+);
+
+CREATE TABLE public.movie_genres (
+    id SERIAL PRIMARY KEY,
+    movie_id INTEGER REFERENCES movies NOT NULL,
+    genre_id INTEGER REFERENCES genres NOT NULL
+);

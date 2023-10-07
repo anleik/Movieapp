@@ -5,12 +5,23 @@
 
 <br>
 <a href="{{ url_for('movie_detail', title=movie.name) }}">Movie: {{ movie.name }}</a>
+{% if movie_genres %}
+<h2> Genres: </h2>
+<p><h3>
+     {% for genre in movie_genres %}
+    {{ genre }}{% if not loop.last %}, {% endif %}
+    {% endfor %}
+</h3></p>
+{% endif %}
+{% if score %}
 <h2> Average score: {{ score }}/10</h2>
+{% endif %}
 <br><br>
 {% if session.username %}
 <a href="{{ url_for('review', title=movie.name) }}">Review</a>
 {% endif %}
 <br>
+{% if movie_reviews %}
 <h2>Reviews:</h2>
     <ul>
         {% for review in movie_reviews %}
@@ -44,3 +55,6 @@
             </li>
         {% endfor %}
     </ul>
+{% else %}
+No reviews yet.    
+{% endif %}

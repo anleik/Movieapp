@@ -28,12 +28,21 @@ def movie_detail(title):
     result2 = db.session.execute(review_sql, {'id': movie[0]})
     movie_reviews = result2.fetchall()
 
+    genres_sql = text("""
+        SELECT g.name 
+        FROM genres g 
+        JOIN movie_genres mg 
+        ON g.id = mg.genre_id 
+        WHERE movie_id = :id
+        """)
+    result3 = db.session.execute(genres_sql, {'id':movie[0]})
+    movie_genres = [row[0] for row in result3]
+
     user_sql = text("SELECT * FROM users WHERE id = :id")
     users = []
     timestamps = []
     scores = []
     likecounts = []
-    show_confirm = True
     for review in movie_reviews:
 
         user_result = db.session.execute(user_sql, {'id':review[3]})
@@ -56,7 +65,15 @@ def movie_detail(title):
         timestamp = str(timestamp)[:16]
 
     if movie:
-        return render_template('movie_detail.html', movie=movie,movie_reviews=movie_reviews, timestamps=timestamps, users=users, score=score, likecounts=likecounts, show_confirm=show_confirm)
+        return render_template('movie_detail.html', 
+                               movie=movie,
+                               movie_reviews=movie_reviews, 
+                               movie_genres=movie_genres,
+                               timestamps=timestamps, 
+                               users=users, 
+                               score=score, 
+                               likecounts=likecounts 
+                               )
     else:
         return render_template("error.html", message = "Something went wrong")
     
