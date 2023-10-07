@@ -20,7 +20,7 @@ CREATE TABLE public.reviews (
     user_id integer REFERENCES users,
     movie_id integer REFERENCES movies,
     sent_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT reviews_score_check CHECK (((score >= 0) AND (score <= 10)))
+    CONSTRAINT reviews_score_check CHECK (score >= 0 AND score <= 10)
 );
 
 CREATE TABLE public.likes (

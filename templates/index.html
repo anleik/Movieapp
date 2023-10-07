@@ -11,6 +11,11 @@
 <br>
 {% if session.username %}
 <p>You're logged in as {{session.username}}</p>
+
+{% if session.is_admin == True %}    
+<p>You are an admin user</p>    
+{% endif %}
+
 <a href="/logout">Log Out</a>
 
 {%else%}

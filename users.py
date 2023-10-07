@@ -23,10 +23,16 @@ def user_id(username):
     user = result.fetchone()
     return user[0]
 
+def is_admin(username):
+    check_admin_sql = text("SELECT admin FROM users WHERE username = :username")
+    result = db.session.execute(check_admin_sql, {"username": username})
+    admin = result.fetchone()
+    return admin[0]
+
 def logout():
     del session["user_id"]
 
-def register(username, password):
+def register(username, password, is_admin):
     check_username_sql = text("SELECT id FROM users WHERE username = :username")
     result = db.session.execute(check_username_sql, {"username":username})
     existing_user = result.fetchone()
@@ -36,8 +42,8 @@ def register(username, password):
 
     hash_value = generate_password_hash(password)
     
-    sql = text("INSERT INTO users (username, password, admin) VALUES (:username, :password, 'f')")
-    db.session.execute(sql, {"username": username, "password": hash_value})
+    sql = text("INSERT INTO users (username, password, admin) VALUES (:username, :password, :is_admin)")
+    db.session.execute(sql, {"username": username, "password": hash_value, "is_admin": is_admin})
     db.session.commit()
     return login(username, password)
 

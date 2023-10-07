@@ -33,6 +33,7 @@ def movie_detail(title):
     timestamps = []
     scores = []
     likecounts = []
+    show_confirm = True
     for review in movie_reviews:
 
         user_result = db.session.execute(user_sql, {'id':review[3]})
@@ -55,7 +56,7 @@ def movie_detail(title):
         timestamp = str(timestamp)[:16]
 
     if movie:
-        return render_template('movie_detail.html', movie=movie,movie_reviews=movie_reviews, timestamps=timestamps, users=users, score=score, likecounts=likecounts)
+        return render_template('movie_detail.html', movie=movie,movie_reviews=movie_reviews, timestamps=timestamps, users=users, score=score, likecounts=likecounts, show_confirm=show_confirm)
     else:
         return render_template("error.html", message = "Something went wrong")
     
@@ -84,28 +85,49 @@ def review(title):
 @app.route('/like-review/<int:review_id>', methods=['POST'])
 def like_review(review_id):
     action = request.form.get('action')
-    username = session["username"]
-    user_id = users.user_id(username)
-    like_sql = text("SELECT 1 FROM likes WHERE review_id = :review_id AND user_id = :user_id")
-    likeresult = db.session.execute(like_sql, {'review_id':review_id, 'user_id': user_id})
+    if action == "like" or "dislike":
+        username = session["username"]
+        user_id = users.user_id(username)
+        like_sql = text("SELECT 1 FROM likes WHERE review_id = :review_id AND user_id = :user_id")
+        likeresult = db.session.execute(like_sql, {'review_id':review_id, 'user_id': user_id})
 
-    if likeresult.fetchone():
-        return render_template("error.html", message = "Already liked or disliked")
+        if likeresult.fetchone():
+            return render_template("error.html", message = "Already liked or disliked")
 
-    sql = text("SELECT * FROM reviews WHERE id = :review_id")
-    result = db.session.execute(sql, {'review_id':review_id})
-    review = result.fetchone()
+        sql = text("SELECT * FROM reviews WHERE id = :review_id")
+        result = db.session.execute(sql, {'review_id':review_id})
+        review = result.fetchone()
+
+        if not review:
+            return render_template("error.html", message = "Review doesn't exist")
+
+
+        sql_update = text("INSERT INTO likes (liketype, user_id, review_id) VALUES (:action, :user_id, :review_id)")
+        db.session.execute(sql_update, {'action': action, 'user_id': user_id, 'review_id': review_id})
+        db.session.commit()
+
+    return redirect("/")
+
+@app.route('/confirm-delete-review/<int:review_id>', methods=['POST'])
+def confirm_delete_review(review_id):
+    if not session["is_admin"]:
+        return render_template("error.html", message = "You do not have permission to delete reviews")
+
+    review = review_id
 
     if not review:
         return render_template("error.html", message = "Review doesn't exist")
 
+    return render_template('confirm_delete_review.html', review=review)
 
-    sql_update = text("INSERT INTO likes (liketype, user_id, review_id) VALUES (:action, :user_id, :review_id)")
-    db.session.execute(sql_update, {'action': action, 'user_id': user_id, 'review_id': review_id})
-    db.session.commit()
 
+@app.route('/delete-review/<int:review_id>', methods=['POST'])
+def delete_review(review_id):
+    confirm = request.form.get('confirm')
+    if confirm == "yes":
+        review_id = review_id
+        reviews.delete_review(review_id)
     return redirect("/")
-
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -117,6 +139,7 @@ def login():
         password = request.form["password"]
         if users.login(username, password):
             session["username"] = username
+            session["is_admin"] = users.is_admin(username)
             return redirect("/")
         else:
             return render_template("error.html", message = "Wrong username or password")
@@ -134,12 +157,14 @@ def register():
         username = request.form["username"]
         password1 = request.form["password1"]
         password2 = request.form["password2"]
+        is_admin = request.form["admin"]
         if len(username) < 3:
             return render_template("error.html", message="Username must be 3 characters or longer")
         if password1 != password2:
             return render_template("error.html", message="Different passwords entered")
-        if users.register(username, password1):
+        if users.register(username, password1, is_admin):
             session["username"] = username
+            session["is_admin"] = users.is_admin(username)
             return redirect("/")
         else:
             return render_template("error.html", message="Registration failed")

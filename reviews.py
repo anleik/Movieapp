@@ -17,3 +17,12 @@ def review(score, content, username, movie):
     db.session.execute(sql, {"content":content,"score":score,"user":user[0],"movie":movie.id})
     db.session.commit()
     return True
+
+def delete_review(review_id):
+    delete_likes_sql = text("DELETE FROM likes WHERE review_id = :review_id")
+    db.session.execute(delete_likes_sql, {"review_id":review_id})
+    db.session.commit()
+    delete_review_sql = text("DELETE FROM reviews WHERE id = :review_id")
+    db.session.execute(delete_review_sql, {"review_id":review_id})
+    db.session.commit()
+    return True

@@ -34,7 +34,13 @@
                     </form></span>
                     {% endif %}
                     <span class="like.count">{{ likecounts[loop.index-1] }}</span> Likes
-
+                {% if session.is_admin == True %}
+                <span>
+                    <form method="POST" action="{{ url_for('confirm_delete_review', review_id=review.id) }}">
+                        <button type="submit">Delete</button> <b> Admin action </b> 
+                    </form>
+                </span>
+                {% endif %}
             </li>
         {% endfor %}
     </ul>
