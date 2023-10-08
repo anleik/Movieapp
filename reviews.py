@@ -57,6 +57,11 @@ def likecount(review_id):
     result = db.session.execute(sql, {'review_id': review_id})
     return result
 
+def dislikecount(review_id):
+    sql = text("SELECT COUNT(*) FROM likes WHERE review_id = :review_id AND liketype ='dislike'")
+    result = db.session.execute(sql, {'review_id': review_id})
+    return result
+
 def check_like(review_id, user_id):
     sql = text("SELECT 1 FROM likes WHERE review_id = :review_id AND user_id = :user_id")
     result = db.session.execute(sql, {'review_id':review_id, 'user_id': user_id})

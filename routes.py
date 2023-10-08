@@ -27,13 +27,16 @@ def movie_detail(title):
     userslist = []
     timestamps = []
     likecounts = []
+    dislikecounts = []
     for review in movie_reviews:
 
         user = users.get_user_by_id(review[3])
         userslist.append(user[1])
 
         likecount = reviews.likecount(review.id)
+        dislikecount = reviews.dislikecount(review.id)
         likecounts.append(likecount.scalar())
+        dislikecounts.append(dislikecount.scalar())
 
         timestamps.append(str(review[5])[:16])
 
@@ -52,7 +55,8 @@ def movie_detail(title):
                                timestamps=timestamps, 
                                users=userslist, 
                                score=score, 
-                               likecounts=likecounts 
+                               likecounts=likecounts,
+                               dislikecounts=dislikecounts 
                                )
     else:
         return render_template("error.html", message = "Something went wrong")
@@ -118,12 +122,13 @@ def confirm_delete_review(review_id):
 
 @app.route('/delete-review/<int:review_id>', methods=['POST'])
 def delete_review(review_id):
+    movies = sqlmovies.get_movies()
     confirm = request.form.get('confirm')
     if confirm == "yes":
         review_id = review_id
         reviews.delete_review(review_id)
-    movies = sqlmovies.get_movies()
-    return render_template('index.html', message = "Review deleted successfully", count=len(movies), movies=movies)
+        return render_template('index.html', message = "Review deleted successfully", count=len(movies), movies=movies)
+    return render_template('index.html', message = "Review not deleted", count=len(movies), movies=movies)
 
 
 @app.route("/login", methods=["GET", "POST"])

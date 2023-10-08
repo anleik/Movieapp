@@ -34,21 +34,25 @@
                 Review: {{ review[1] }}
                 <br>
                 {% if session.username %}
+                    <div>
                     <span>
-                    <form method="POST" action="{{ url_for('like_review', review_id=review.id) }}">
+                    <form method="POST" action="{{ url_for('like_review', review_id=review.id) }}" style="display: inline;">
                         <input type="hidden" name="action" value="like">
                         <button type="submit">Like</button>
                     </form></span>
-                    <span><form method="POST" action="{{ url_for('like_review', review_id=review.id) }}">
+                    <span><form method="POST" action="{{ url_for('like_review', review_id=review.id) }}" style="display: inline;">
                         <input type="hidden" name="action" value="dislike">
                         <button type="submit">Dislike</button>
                     </form></span>
+                    </div>
                     {% endif %}
-                    <span class="like.count">{{ likecounts[loop.index-1] }}</span> Likes
+                    <span class="like.count">{{ likecounts[loop.index-1] }} Likes,</span> 
+                    <span class="dislike.count">{{ dislikecounts[loop.index-1] }} Dislikes</span>
+                    <br><br>
                 {% if session.is_admin or session.user_id == review[3] %}
                 <span>
                     <form method="POST" action="{{ url_for('confirm_delete_review', review_id=review.id) }}">
-                        <button type="submit">Delete</button> <b> Deleting is permanent </b> 
+                        <button type="submit">Delete Review</button> <b> Deleting is permanent </b> 
                     </form>
                 </span>
                 {% endif %}
