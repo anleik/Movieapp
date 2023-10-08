@@ -26,7 +26,6 @@ def movie_detail(title):
 
     userslist = []
     timestamps = []
-    scores = []
     likecounts = []
     for review in movie_reviews:
 
@@ -37,16 +36,13 @@ def movie_detail(title):
         likecounts.append(likecount.scalar())
 
         timestamps.append(str(review[5])[:16])
-        scores.append(review[2])
 
-    if len(scores) == 0:
+    scoretemp = sqlmovies.avg_score(movie.id)
+    
+    if not scoretemp:
         score = 0
     else:
-        scoretemp = float(sum(scores)/len(scores))
         score = f"{scoretemp:.2f}"
-
-    for timestamp in timestamps:
-        timestamp = str(timestamp)[:16]
 
     if movie:
         return render_template('movie_detail.html', 

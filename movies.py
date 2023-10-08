@@ -49,3 +49,8 @@ def movie_genres(movie_id):
     result = db.session.execute(sql, {'id':movie_id})
     movie_genres = [row[0] for row in result]
     return movie_genres
+
+def avg_score(movie_id):
+    sql = text("SELECT AVG(score) FROM reviews WHERE movie_id = :movie_id")
+    result = db.session.execute(sql, {'movie_id':movie_id})
+    return result.scalar()
