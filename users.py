@@ -23,6 +23,12 @@ def user_id(username):
     user = result.fetchone()
     return user[0]
 
+def get_user_by_id(user_id):
+    sql = text("SELECT * FROM users WHERE id = :id")
+    result = db.session.execute(sql, {'id':user_id})
+    user = result.fetchone()
+    return user
+
 def is_admin(username):
     check_admin_sql = text("SELECT admin FROM users WHERE username = :username")
     result = db.session.execute(check_admin_sql, {"username": username})

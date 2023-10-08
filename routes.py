@@ -14,45 +14,28 @@ from os import getenv
 
 @app.route("/")
 def index():
-    result = db.session.execute(text("SELECT * FROM movies"))
-    movies = result.fetchall()
+    movies = sqlmovies.get_movies()
     return render_template("index.html", count=len(movies), movies=movies)
 
 
 @app.route('/movie/<string:title>')
 def movie_detail(title):
-    sql = text("SELECT * FROM movies WHERE name = :title")
-    result = db.session.execute(sql, {'title': title})
-    movie = result.fetchone()
+    movie = sqlmovies.movie_name(title)
+    movie_reviews = reviews.get_reviews(movie[0])
+    movie_genres = sqlmovies.movie_genres(movie[0])
 
-    review_sql = text("SELECT * FROM reviews WHERE movie_id = :id")
-    result2 = db.session.execute(review_sql, {'id': movie[0]})
-    movie_reviews = result2.fetchall()
-
-    genres_sql = text("""
-        SELECT g.name 
-        FROM genres g 
-        JOIN movie_genres mg 
-        ON g.id = mg.genre_id 
-        WHERE movie_id = :id
-        """)
-    result3 = db.session.execute(genres_sql, {'id':movie[0]})
-    movie_genres = [row[0] for row in result3]
-
-    user_sql = text("SELECT * FROM users WHERE id = :id")
-    users = []
+    userslist = []
     timestamps = []
     scores = []
     likecounts = []
     for review in movie_reviews:
 
-        user_result = db.session.execute(user_sql, {'id':review[3]})
-        user = user_result.fetchone()
-        users.append(user[1])
+        user = users.get_user_by_id(review[3])
+        userslist.append(user[1])
 
-        like_sql = text("SELECT COUNT(*) FROM likes WHERE review_id = :review_id AND liketype ='like'")
-        like_result = db.session.execute(like_sql, {'review_id': review.id})
-        likecounts.append(like_result.scalar())
+        likecount = reviews.likecount(review.id)
+        likecounts.append(likecount.scalar())
+
         timestamps.append(str(review[5])[:16])
         scores.append(review[2])
 
@@ -71,7 +54,7 @@ def movie_detail(title):
                                movie_reviews=movie_reviews, 
                                movie_genres=movie_genres,
                                timestamps=timestamps, 
-                               users=users, 
+                               users=userslist, 
                                score=score, 
                                likecounts=likecounts 
                                )
@@ -80,9 +63,8 @@ def movie_detail(title):
   
 @app.route('/movie/<string:title>/review', methods=['GET','POST'])
 def review(title):
-    sql = text("SELECT * FROM movies WHERE name = :title")
-    result = db.session.execute(sql, {'title':title})
-    movie = result.fetchone()
+    movie = sqlmovies.movie_name(title)
+
     if not movie:
         return render_template("error.html", message = "Movie doesn't exist")
     if request.method == "POST":
@@ -91,11 +73,12 @@ def review(title):
         if session["username"]:
             username = session["username"]
         else:
-            return render_template("error.html", message="Review failed")
+            return render_template("error.html", message="Review failed, not logged in or username doesn't exist")
         if reviews.review(score, content, username, movie):
-            return redirect("/")
+            movies = sqlmovies.get_movies()
+            return render_template('index.html', message = f"Review left successfully", count=len(movies), movies=movies)
         else:
-            return render_template("error.html", message="Review failed")
+            return render_template("error.html", message="Review failed, you have already reviewed the movie")
 
 
     return render_template('review.html',movie=movie)
@@ -106,29 +89,27 @@ def like_review(review_id):
     if action == "like" or "dislike":
         username = session["username"]
         user_id = users.user_id(username)
-        like_sql = text("SELECT 1 FROM likes WHERE review_id = :review_id AND user_id = :user_id")
-        likeresult = db.session.execute(like_sql, {'review_id':review_id, 'user_id': user_id})
 
-        if likeresult.fetchone():
+        like_check = reviews.check_like(review_id, user_id)
+
+        if like_check:
             return render_template("error.html", message = "Already liked or disliked")
-
-        sql = text("SELECT * FROM reviews WHERE id = :review_id")
-        result = db.session.execute(sql, {'review_id':review_id})
-        review = result.fetchone()
+        
+        review = reviews.check_review(review_id)
 
         if not review:
             return render_template("error.html", message = "Review doesn't exist")
 
+        reviews.add_like(action, user_id, review_id)
 
-        sql_update = text("INSERT INTO likes (liketype, user_id, review_id) VALUES (:action, :user_id, :review_id)")
-        db.session.execute(sql_update, {'action': action, 'user_id': user_id, 'review_id': review_id})
-        db.session.commit()
-
-    return redirect("/")
+    movies = sqlmovies.get_movies()
+    return render_template('index.html', message = f"Review {action}d successfully", count=len(movies), movies=movies)
 
 @app.route('/confirm-delete-review/<int:review_id>', methods=['POST'])
 def confirm_delete_review(review_id):
-    if not session["is_admin"]:
+    user_id = reviews.user_id(review_id)
+    print(user_id[0])
+    if not session["is_admin"] and session["user_id"] != user_id[0]:
         return render_template("error.html", message = "You do not have permission to delete reviews")
 
     review = review_id
@@ -145,7 +126,8 @@ def delete_review(review_id):
     if confirm == "yes":
         review_id = review_id
         reviews.delete_review(review_id)
-    return redirect("/")
+    movies = sqlmovies.get_movies()
+    return render_template('index.html', message = "Review deleted successfully", count=len(movies), movies=movies)
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -156,6 +138,8 @@ def login():
         username = request.form["username"]
         password = request.form["password"]
         if users.login(username, password):
+            user_id = users.user_id(username)
+            session["user_id"] = user_id
             session["username"] = username
             session["is_admin"] = users.is_admin(username)
             return redirect("/")
@@ -181,6 +165,8 @@ def register():
         if password1 != password2:
             return render_template("error.html", message="Different passwords entered")
         if users.register(username, password1, is_admin):
+            user_id = users.user_id(username)
+            session["user_id"] = user_id
             session["username"] = username
             session["is_admin"] = users.is_admin(username)
             return redirect("/")

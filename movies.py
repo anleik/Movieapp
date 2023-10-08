@@ -31,3 +31,21 @@ def get_genres():
     sql = text("SELECT * FROM genres")
     result = db.session.execute(sql)
     return result.fetchall()
+
+def movie_name(title):
+    sql = text("SELECT * FROM movies WHERE name = :title")
+    result = db.session.execute(sql, {'title': title})
+    movie = result.fetchone()
+    return movie
+
+def movie_genres(movie_id):
+    sql = text("""
+        SELECT g.name 
+        FROM genres g 
+        JOIN movie_genres mg 
+        ON g.id = mg.genre_id 
+        WHERE movie_id = :id
+        """)
+    result = db.session.execute(sql, {'id':movie_id})
+    movie_genres = [row[0] for row in result]
+    return movie_genres

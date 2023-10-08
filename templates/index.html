@@ -1,5 +1,8 @@
 <title>Movieapp</title>
-<h1>Movieapp</h1>
+<a href="{{ url_for('index') }}"><h1>Movieapp</h1></a>
+{% if message %}
+<br>{{ message }}<br>
+{% endif %}
 <h2>Movies</h2>
 <hr>
 {% for movie in movies %}

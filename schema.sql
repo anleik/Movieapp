@@ -1,7 +1,7 @@
 CREATE TABLE public.movies (
     id SERIAL PRIMARY KEY,
     name text NOT NULL,
-    year integer NOT NULL
+    year integer NOT NULL,
     CONSTRAINT unique_name_year UNIQUE (name, year)
 );
 
@@ -10,8 +10,8 @@ CREATE TABLE public.users (
     username VARCHAR(30) NOT NULL,
     password VARCHAR(500) NOT NULL,
     admin boolean NOT NULL,
-    CONSTRAINT unique_username UNIQUE (username)
-    CONSTRAINT min_username_length CHECK (LENGTH(username) >= 3);
+    CONSTRAINT unique_username UNIQUE (username),
+    CONSTRAINT min_username_length CHECK (LENGTH(username) >= 3)
 );
 
 CREATE TABLE public.reviews (
@@ -21,7 +21,8 @@ CREATE TABLE public.reviews (
     user_id integer REFERENCES users,
     movie_id integer REFERENCES movies,
     sent_at timestamp without time zone DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT reviews_score_check CHECK (score >= 0 AND score <= 10)
+    CONSTRAINT reviews_score_check CHECK (score >= 0 AND score <= 10),
+    CONSTRAINT unique_user_review UNIQUE (user_id, movie_id)
 );
 
 CREATE TABLE public.likes (
