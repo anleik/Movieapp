@@ -6,8 +6,8 @@ Users can:
 * login/logout  
 * review movies (text and rating) 
 * delete own reviews
-* browse other users' reviews  
-* like or dislike other users' reviews  
+* browse reviews  
+* like or dislike reviews  
 
 Admins can:  
 * add new movies
