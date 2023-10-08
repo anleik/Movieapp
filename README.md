@@ -5,6 +5,7 @@ Users can:
 * create an account  
 * login/logout  
 * review movies (text and rating) 
+* delete own reviews
 * browse other users' reviews  
 * like or dislike other users' reviews  
 
@@ -39,18 +40,3 @@ Launch the app with:
 $ flask run  
 ```
   
-## Goals  
-Users can:
-* create an account
-* login/logout  
-* review movies (text and rating) 
-* edit/update their reviews 
-* browse other users' reviews
-* like or dislike other users' reviews
-* change like to dislike and vice versa  
-
-Admins can:
-* add new movies
-* delete reviews
-
-
