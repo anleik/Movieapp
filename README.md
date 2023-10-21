@@ -1,4 +1,5 @@
 # Movieapp
+A web app for movie reviews.
 
 ## Functionality:  
 Users can:  
@@ -16,7 +17,7 @@ Admins can:
 * delete reviews
 
 
-## Instructions  
+## Instructions (run locally)  
 Clone the repository and move to it's root directory  
 Create a .env file and fill in these variables:  
 ```
@@ -39,4 +40,3 @@ Launch the app with:
 ```
 $ flask run  
 ```
-  
