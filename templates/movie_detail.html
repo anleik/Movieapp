@@ -1,10 +1,8 @@
 <h2> 
     <a href="{{ url_for('index') }}">Front Page</a> 
 </h2>
-<h1>{{movie.name, movie.year}} </h1>
-
-<br>
-<a href="{{ url_for('movie_detail', title=movie.name) }}">Movie: {{ movie.name }}</a>
+<h1>{{movie.name}} </h1>
+<h2>Release year: {{movie.year}}</h2>
 {% if movie_genres %}
 <h2> Genres: </h2>
 <p><h3>
@@ -39,10 +37,12 @@
                     <form method="POST" action="{{ url_for('like_review', review_id=review.id) }}" style="display: inline;">
                         <input type="hidden" name="action" value="like">
                         <button type="submit">Like</button>
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form></span>
                     <span><form method="POST" action="{{ url_for('like_review', review_id=review.id) }}" style="display: inline;">
                         <input type="hidden" name="action" value="dislike">
                         <button type="submit">Dislike</button>
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form></span>
                     </div>
                     {% endif %}
@@ -53,6 +53,7 @@
                 <span>
                     <form method="POST" action="{{ url_for('confirm_delete_review', review_id=review.id) }}">
                         <button type="submit">Delete Review</button> <b> Deleting is permanent </b> 
+                        <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
                     </form>
                 </span>
                 {% endif %}

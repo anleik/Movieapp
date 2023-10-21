@@ -10,6 +10,5 @@
     <p>Are you sure?</p>
     <button type="submit" name="confirm" value="yes">Yes</button>
     <button type="submit" name="confirm" value="no">No</button>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 </form>
-
-

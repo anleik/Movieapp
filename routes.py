@@ -3,6 +3,7 @@ import users
 import reviews
 import movies as sqlmovies
 from db import db
+import secrets
 from flask import Flask
 from flask import redirect, render_template, request, flash, url_for, session
 from flask_sqlalchemy import SQLAlchemy
@@ -60,7 +61,7 @@ def movie_detail(title):
                                )
     else:
         return render_template("error.html", message = "Something went wrong")
-  
+
 @app.route('/movie/<string:title>/review', methods=['GET','POST'])
 def review(title):
     movie = sqlmovies.movie_name(title)
@@ -74,12 +75,13 @@ def review(title):
             username = session["username"]
         else:
             return render_template("error.html", message="Review failed, not logged in or username doesn't exist")
+        if session["csrf_token"] != request.form["csrf_token"]:
+            return render_template("error.html", message = "Invalid session data")
         if reviews.review(score, content, username, movie):
             movies = sqlmovies.get_movies()
             return render_template('index.html', message = f"Review left successfully", count=len(movies), movies=movies)
         else:
             return render_template("error.html", message="Review failed, you have already reviewed the movie")
-
 
     return render_template('review.html',movie=movie)
 
@@ -100,6 +102,9 @@ def like_review(review_id):
         if not review:
             return render_template("error.html", message = "Review doesn't exist")
 
+        if session["csrf_token"] != request.form["csrf_token"]:
+            return render_template("error.html", message = "Invalid session data")
+
         reviews.add_like(action, user_id, review_id)
 
     movies = sqlmovies.get_movies()
@@ -117,6 +122,9 @@ def confirm_delete_review(review_id):
     if not review:
         return render_template("error.html", message = "Review doesn't exist")
 
+    if session["csrf_token"] != request.form["csrf_token"]:
+        return render_template("error.html", message = "Invalid session data")
+
     return render_template('confirm_delete_review.html', review=review)
 
 
@@ -125,6 +133,8 @@ def delete_review(review_id):
     movies = sqlmovies.get_movies()
     confirm = request.form.get('confirm')
     if confirm == "yes":
+        if session["csrf_token"] != request.form["csrf_token"]:
+            return render_template("error.html", message = "Invalid session data")
         review_id = review_id
         reviews.delete_review(review_id)
         return render_template('index.html', message = "Review deleted successfully", count=len(movies), movies=movies)
@@ -140,6 +150,7 @@ def login():
         password = request.form["password"]
         if users.login(username, password):
             user_id = users.user_id(username)
+            session["csrf_token"] = secrets.token_hex(16)
             session["user_id"] = user_id
             session["username"] = username
             session["is_admin"] = users.is_admin(username)
@@ -167,6 +178,7 @@ def register():
             return render_template("error.html", message="Different passwords entered")
         if users.register(username, password1, is_admin):
             user_id = users.user_id(username)
+            session["csrf_token"] = secrets.token_hex(16)
             session["user_id"] = user_id
             session["username"] = username
             session["is_admin"] = users.is_admin(username)
@@ -187,6 +199,9 @@ def add_movie():
     if not session["is_admin"]:
         return render_template("error.html", message = "You do not have permission to this page")
 
+    if session["csrf_token"] != request.form["csrf_token"]:
+        return render_template("error.html", message = "Invalid session data")
+
     movie_name = request.form['movie_name']
     movie_year = request.form['year']
     
@@ -201,6 +216,9 @@ def add_genre():
     if not session["is_admin"]:
         return render_template("error.html", message = "You do not have permission to this page")
 
+    if session["csrf_token"] != request.form["csrf_token"]:
+        return render_template("error.html", message = "Invalid session data")
+
     genre_name = request.form['genre_name']
 
     sqlmovies.add_genre(genre_name)
@@ -213,6 +231,9 @@ def add_genre():
 def link_genre():
     if not session["is_admin"]:
         return render_template("error.html", message = "You do not have permission to this page")
+
+    if session["csrf_token"] != request.form["csrf_token"]:
+        return render_template("error.html", message = "Invalid session data")
 
     movie = request.form['movie_id']
     genre = request.form['genre_id']

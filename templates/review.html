@@ -11,4 +11,5 @@
     <textarea id="review_text" name="review_text" required></textarea>
 
     <button type="submit">Submit Review</button>
+    <input type="hidden" name="csrf_token" value="{{ session.csrf_token }}">
 </form>
